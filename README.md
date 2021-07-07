@@ -12,7 +12,6 @@ A full stack IEEE website that has a contact form to submit and view messages.
 - other libraries and packages
 ### How it works?
 The website home page has information about IEEE-MSB and their various events. The user can fill out a contact form which stores the messages to a database which is then displayed in tabular format when the 'View' button is clicked.
-### How it works?
 The front end is made by using only HTML, CSS and JS. Jinja is used as a python templating language to make the site more dynamic.
 ### Routing
 THe site has a default '/' route with GET and POST methods.
