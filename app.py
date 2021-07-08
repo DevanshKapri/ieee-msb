@@ -1,5 +1,5 @@
 import os
-import sqlite3
+import psycopg2
 from flask import Flask, g, flash, redirect, render_template, request, session, url_for
 from tempfile import mkdtemp
 
@@ -7,21 +7,16 @@ from tempfile import mkdtemp
 app = Flask(__name__)
 
 # Connecting with Database
-DATABASE = './messages.db'
+POSTGRES_URL = "postgres://wrbrytmbdhojuo:f25be743a8861bea4a4f2a967481e70804707377b5ba3dcb41b3e9f3a6950af9@ec2-52-86-25-51.compute-1.amazonaws.com:5432/damafta2g98grd"
 
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-        db.row_factory = sqlite3.Row
-    return db
+db = psycopg2.connect(POSTGRES_URL)
 
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-
+try:
+    with db:
+        with db.cursor() as cursor:
+            cursor.execute("CREATE TABLE messages (name TEXT NOT NULL, email VARCHAR NOT NULL, subject text NOT NULL, message text NOT NULL);")
+except psycopg2.errors.DuplicateTable:
+    pass
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -37,9 +32,10 @@ def after_request(response):
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
-        db = get_db()
-        cursor = db.execute('SELECT * FROM messages')
-        history = cursor.fetchall()
+        with db:
+            with db.cursor() as cursor:
+                cursor.execute('SELECT * FROM messages')
+                history = cursor.fetchall()
         if not history:
             return render_template("index.html")
         else:
@@ -51,12 +47,11 @@ def index():
         subject = request.form.get("subject")
         message = request.form.get("message")
 
-        conn = sqlite3.connect('messages.db')
-        data = [name, email, subject, message]
-        conn.execute("INSERT INTO messages (name, email, subject, message) VALUES (?, ?, ?, ?)",
-                       (*data,))
-        conn.commit()
 
+        with db:
+            with db.cursor() as cursor:
+                cursor.execute("INSERT INTO messages (name, email, subject, message) VALUES (%s, %s, %s, %s)",
+                       (name, email, subject, message))
         return redirect("/")
 
 

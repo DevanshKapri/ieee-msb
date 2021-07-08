@@ -221,10 +221,10 @@
                 <tbody>
                     {% for entry in history %}
                     <tr>
-                        <td>{{entry["name"]}}</td>
-                        <td>{{entry["email"]}}</td>
-                        <td>{{entry["subject"]}}</td>
-                        <td>{{entry["message"]}}</td>
+                        <td>{{entry[0]}}</td>
+                        <td>{{entry[1]}}</td>
+                        <td>{{entry[2]}}</td>
+                        <td>{{entry[3]}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -240,7 +240,8 @@
                 &copy; Copyright <strong><span>MANIT</span></strong>. All Rights Reserved.
             </div>
         </div>
-    </footer><!-- End Footer -->
+    </footer>
+    <!-- End Footer -->
 
     <script src="static/js/index.js"></script>
 
